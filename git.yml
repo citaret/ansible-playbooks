@@ -17,6 +17,7 @@
       - zlib1g-dev
       - libssl-dev
       - build-essential
+      - postfix
     - name: Git | Ensure sources directory exists
       file: state=directory path={{download_path}}
     - name: Git | Ensure the source is downloaded
