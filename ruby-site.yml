@@ -1,7 +1,6 @@
 ---
 - name: install ruby
   hosts: webservers
-  remote_user: vagrant
   sudo: yes
   vars:
     ruby_version: '2.0.0-p353'

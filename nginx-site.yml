@@ -1,17 +1,17 @@
 ---
 - name: setup nginx web service
   hosts: webservers
-  remote_user: vagrant
   sudo: yes
   tasks:
-    - name: install basic packages
+    - name: Ensure basic packages are installed
       apt: name={{item}} update-cache=yes
       with_items:
         - curl
         - htop
         - lynx
-    - name: install nginx
+        - vim
+    - name: Ensure nginx is installed
       apt: pkg=nginx state=present
-    - name: start nginx service
+    - name: Ensure nginx service is started
       service: name=nginx state=started enabled=yes
 
