@@ -1,0 +1,32 @@
+---
+- name: setup git
+  hosts: webservers
+  sudo: yes
+  vars:
+    version: '1.8.4.1'
+    download_path: '/home/vagrant/sources'
+    source_url: 'https://git-core.googlecode.com/files/git-{{version}}.tar.gz'
+    source_path: '{{download_path}}/git-{{version}}'
+  tasks:
+    - name: Git | Ensure git dependencies are installed
+      apt: name={{item}} state=present
+      with_items:
+      - libcurl4-openssl-dev
+      - libexpat1-dev
+      - gettext
+      - zlib1g-dev
+      - libssl-dev
+      - build-essential
+    - name: Git | Ensure sources directory exists
+      file: state=directory path={{download_path}}
+    - name: Git | Ensure the source is downloaded
+      get_url: url={{source_url}} dest={{source_path}}.tar.gz
+    - name: Git | Ensure the source is extracted
+      command: tar zxf {{source_path}}.tar.gz chdir={{download_path}} creates={{source_path}}
+    - name: Git | Ensure configured
+      command: ./configure prefix=/usr/local all chdir={{source_path}} creates='config.mak.autogen'
+    - name: Git | Ensure compiled
+      command: make chdir={{source_path}} creates=git
+    - name: Git | Ensure installed
+      command: make install chdir={{source_path}} creates=/usr/local/bin/git
+
