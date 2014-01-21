@@ -30,7 +30,4 @@
     - name: Ensure bundler is installed
       gem: name=bundler state=present user_install=no
       sudo: yes
-#    - name: Install bundler
-#      command: gem install bundler --no-ri --no-rdoc
-#      sudo: yes
-#
+
