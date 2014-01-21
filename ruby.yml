@@ -1,31 +1,33 @@
 ---
 - name: install ruby
   hosts: webservers
-  sudo: yes
   vars:
     ruby_version: '2.0.0-p353'
     sources_path: '/home/vagrant/sources'
-    ruby_source_path: '{{sources_path}}/ruby-{{ruby_version}}'
+    product_path: '{{sources_path}}/ruby-{{ruby_version}}'
     ruby_url: 'ftp://ftp.ruby-lang.org//pub/ruby/ruby-{{ruby_version}}.tar.gz'
   tasks:
     - name: Ensure ruby dependencies are installed
+      sudo: yes
       apt: name={{item}} state=present update-cache=yes
       with_items:
         - build-essential
-#        - libyaml-dev
+        - libyaml-dev
         - zlib1g-dev
     - name: Ensure sources directory exists
       file: state=directory path={{sources_path}}
     - name: Ensure the ruby source is downloaded
-      get_url: url={{ruby_url}} dest={{ruby_source_path}}.tar
+      get_url: url={{ruby_url}} dest={{product_path}}.tar.gz
     - name: Ensure the ruby source is extracted
-      command: tar zxf {{ruby_source_path}}.tar chdir={{sources_path}} creates={{ruby_source_path}}
+      command: tar zxf {{product_path}}.tar.gz chdir={{sources_path}} creates={{product_path}}
     - name: Ensure ruby is configured
-      command: ./configure chdir={{ruby_source_path}} creates=Makefile
+      command: ./configure chdir={{product_path}} creates=Makefile
     - name: Ensure ruby is compiled
-      command: make chdir={{ruby_source_path}} creates=ruby
+      command: make chdir={{product_path}} creates=ruby
     - name: Ensure ruby is installed
-      command: make install chdir={{ruby_source_path}} creates=/usr/local/bin/ruby
+      command: make install chdir={{product_path}} creates=/usr/local/bin/ruby
+      sudo: yes
     - name: Ensure bundler is installed
       gem: name=bundler state=present
+      sudo: yes
 

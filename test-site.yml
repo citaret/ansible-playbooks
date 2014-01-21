@@ -1,4 +1,0 @@
----
-- include: nginx-site.yml
-- include: ruby-site.yml
-
