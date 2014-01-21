@@ -1,17 +1,17 @@
 ---
-- name: setup nginx web service
+- name: NGINX
   hosts: webservers
   sudo: yes
   tasks:
-    - name: Ensure basic packages are installed
+    - name: Ensure dependencies are installed
       apt: name={{item}} update-cache=yes
       with_items:
         - curl
         - htop
         - lynx
         - vim
-    - name: Ensure nginx is installed
+    - name: Ensure installed
       apt: pkg=nginx state=present
-    - name: Ensure nginx service is started
+    - name: Ensure service started
       service: name=nginx state=started enabled=yes
 
