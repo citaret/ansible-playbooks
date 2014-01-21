@@ -1,14 +1,14 @@
 ---
 - name: setup git
   hosts: webservers
-  sudo: yes
   vars:
     version: '1.8.4.1'
-    download_path: '/home/vagrant/sources'
-    source_url: 'https://git-core.googlecode.com/files/git-{{version}}.tar.gz'
-    source_path: '{{download_path}}/git-{{version}}'
+    sources_path: '/home/vagrant/sources'
+    product_path: '{{sources_path}}/git-{{version}}'
+    product_url: 'https://git-core.googlecode.com/files/git-{{version}}.tar.gz'
   tasks:
     - name: Git | Ensure git dependencies are installed
+      sudo: yes
       apt: name={{item}} state=present
       with_items:
       - libcurl4-openssl-dev
@@ -19,15 +19,16 @@
       - build-essential
       - postfix
     - name: Git | Ensure sources directory exists
-      file: state=directory path={{download_path}}
+      file: state=directory path={{sources_path}}
     - name: Git | Ensure the source is downloaded
-      get_url: url={{source_url}} dest={{source_path}}.tar.gz
+      get_url: url={{product_url}} dest={{product_path}}.tar.gz
     - name: Git | Ensure the source is extracted
-      command: tar zxf {{source_path}}.tar.gz chdir={{download_path}} creates={{source_path}}
+      command: tar zxf {{product_path}}.tar.gz chdir={{sources_path}} creates={{product_path}}
     - name: Git | Ensure configured
-      command: ./configure prefix=/usr/local all chdir={{source_path}} creates='config.mak.autogen'
+      command: ./configure prefix=/usr/local all chdir={{product_path}} creates='config.mak.autogen'
     - name: Git | Ensure compiled
-      command: make chdir={{source_path}} creates=git
+      command: make chdir={{product_path}} creates=git
     - name: Git | Ensure installed
-      command: make install chdir={{source_path}} creates=/usr/local/bin/git
+      command: make install chdir={{product_path}} creates=/usr/local/bin/git
+      sudo: yes
 
