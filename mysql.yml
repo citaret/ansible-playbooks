@@ -3,7 +3,7 @@
   hosts: webservers
   sudo: yes
   vars_files:
-    - files/vars.yml
+    - vars.yml
   tasks:
     - name: Ensure dependencies are installed
       apt: name={{item}}
