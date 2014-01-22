@@ -1,127 +1,130 @@
 ---
-#- include: nginx.yml
-#- include: ruby.yml
-#- include: mysql.yml
-#- include: git.yml
+- include: nginx.yml
+- include: ruby.yml
+- include: mysql.yml
+- include: git.yml
 
-#- name: DEPENDENCIES
-#  hosts: webservers
-#  sudo: yes
-#  tasks:
-#    - name: Ensure dependencies are installed
-#      apt: name={{item}} state=present
-#      with_items:
-#      - build-essential
-#      - zlib1g-dev
-#      - libyaml-dev
-#      - libssl-dev
-#      - libgdbm-dev
-#      - libreadline-dev
-#      - libncurses5-dev
-#      - libffi-dev
-#      - curl
-#      - openssh-server
-#      - redis-server
-#      - checkinstall
-#      - libxml2-dev
-#      - libxslt1-dev
-#      - libcurl4-openssl-dev
-#      - libicu-dev
-#      - mysql-client
-#      - libmysqlclient-dev  # for gitlab mysql module
-#      - logrotate
-#    - name: Ensure user git present
-#      user: name=git system=yes shell=/bin/false comment='Gitlab'
-#
-#- name: GITLAB SHELL
-#  hosts: webservers
-#  sudo: yes
-#  sudo_user: git
-#  vars_files:
-#    - files/vars.yml
-#  tasks:
-#    - name: ensure Gitlab-Shell git repository is cloned
-#      git: repo=https://gitlab.com/gitlab-org/gitlab-shell.git dest=/home/git/gitlab-shell version=v1.8.0
-#    - name: ensure config is copied from example
-#      command: cp /home/git/gitlab-shell/config.yml.example /home/git/gitlab-shell/config.yml creates=/home/git/gitlab-shell/config.yml
-#    # TODO: use sed to replace
-#    - name: ensure gitlab-shell config is written
-#      action: template src=templates/gitlab_shell_config.yml.j2 dest=/home/git/gitlab-shell/config.yml mode=0644
-#    - name: ensure gitlab-shell is installed
-#      command: /home/git/gitlab-shell/bin/install
-#
-#- name: DATABASE
-#  hosts: webservers
-#  sudo: yes
-#  vars_files:
-#    - files/vars.yml
-#  tasks:
-#    - name: ensure database for gitlab exists
-#      mysql_db: state=present name={{gitlab_db_name}} collation=utf8_unicode_ci encoding=utf8
-#    - name: ensure database user for gitlab is present and has privleges
-#      mysql_user: state=present host=localhost name={{ gitlab_db_user }} password={{ gitlab_db_passwd }} priv={{ gitlab_db_name }}.*:ALL
-#
-#- name: GITLAB
-#  hosts: webservers
-#  sudo: yes
-#  sudo_user: git
-#  vars_files:
-#    - files/vars.yml
-#  tasks:
-#    - name: ensure GitLab stable is cloned
-#      git: repo=https://gitlab.com/gitlab-org/gitlab-ce.git dest=/home/git/gitlab version=6-4-stable
-#
-#    - name: ensure GitLab config file exists
-#      template: src=templates/gitlab.yml.j2 dest=/home/git/gitlab/config/gitlab.yml mode=0644
-#
-#    - name: ensure GitLab can write to log
-#      command: chmod -R u+rwX /home/git/gitlab/log
-#    - name: ensure GitLab can write to tmp
-#      command: chmod -R u+rwX /home/git/gitlab/tmp
-#
-#    - name: ensure directory for satellites exists
-#      file: state=directory path=/home/git/gitlab-satellites
-#
-#    - name: ensure directory sockets exists
-#      file: state=directory path=/home/git/gitlab/tmp/sockets/
-#    - name: ensure GitLab can write to sockets
-#      command: chmod -R u+rwX /home/git/gitlab/tmp/sockets/
-#
-#    - name: ensure directory pids exists
-#      file: state=directory path=/home/git/gitlab/tmp/pids/
-#    - name: ensure GitLab can write to pids
-#      command: chmod -R u+rwX /home/git/gitlab/tmp/pids/
-#
-#    - name: ensure directory public/uploads exists
-#      file: state=directory path=/home/git/gitlab/public/uploads/
-#    - name: ensure GitLab can write to public/uploads/
-#      command: chmod -R u+rwX /home/git/gitlab/public/uploads/
-#
-#    - name: ensure GitLab config file exists
-#      template: src=templates/unicorn.rb.j2 dest=/home/git/gitlab/config/unicorn.rb mode=0644
-#
-#    - name: ensure Rack attack config is copied from example
-#      command: cp /home/git/gitlab/config/initializers/rack_attack.rb.example /home/git/gitlab/config/initializers/rack_attack.rb
-#                 creates=/home/git/gitlab/config/initializers/rack_attack.rb
-#
-#    - command: git config --global user.name "GitLab"
-#    - command: git config --global user.emal "gitlab@localhost"
-#    - command: git config --global core.autocrlf input
-#
-#    - name: ensure DB config file exists
-#      template: src=templates/database.yml.j2 dest=/home/git/gitlab/config/database.yml mode=0600
-#
-#    - command: bundle install --deployment --without development test postgres aws chdir=/home/git/gitlab/
-#
-#    - name: Initialize Database and Activate Advanced Features
-#      shell: yes 'yes' | bundle exec rake gitlab:setup RAILS_ENV=production chdir=/home/git/gitlab
-#
-#    - name: Check Application Status
-#      command: bundle exec rake gitlab:env:info RAILS_ENV=production chdir=/home/git/gitlab
-#
-#    - name: Compile assets
-#      command: bundle exec rake assets:precompile RAILS_ENV=production chdir=/home/git/gitlab
-#
+- name: DEPENDENCIES
+  hosts: webservers
+  sudo: yes
+  tasks:
+    - name: Ensure dependencies are installed
+      apt: name={{item}} state=present
+      with_items:
+      - build-essential
+      - python-docutils
+      - zlib1g-dev
+      - libyaml-dev
+      - libssl-dev
+      - libgdbm-dev
+      - libreadline-dev
+      - libncurses5-dev
+      - libffi-dev
+      - curl
+      - openssh-server
+      - redis-server
+      - checkinstall
+      - libxml2-dev
+      - libxslt1-dev
+      - libcurl4-openssl-dev
+      - libicu-dev
+      - mysql-client
+      - libmysqlclient-dev  # for gitlab mysql module
+      - logrotate
+    - name: Ensure user git present
+      user: name=git system=yes shell=/bin/false comment='Gitlab'
+
+- name: GITLAB SHELL
+  hosts: webservers
+  sudo: yes
+  sudo_user: git
+  vars_files:
+    - files/vars.yml
+  tasks:
+    - name: ensure Gitlab-Shell git repository is cloned
+      git: repo=https://gitlab.com/gitlab-org/gitlab-shell.git dest=/home/git/gitlab-shell
+              version=v1.8.0 update=no
+    - name: ensure config is copied from example
+      command: cp /home/git/gitlab-shell/config.yml.example /home/git/gitlab-shell/config.yml creates=/home/git/gitlab-shell/config.yml
+    # TODO: use sed to replace
+    - name: ensure gitlab-shell config is written
+      action: template src=templates/gitlab_shell_config.yml.j2 dest=/home/git/gitlab-shell/config.yml mode=0644
+    - name: ensure gitlab-shell is installed
+      command: /home/git/gitlab-shell/bin/install
+
+- name: DATABASE
+  hosts: webservers
+  sudo: yes
+  vars_files:
+    - files/vars.yml
+  tasks:
+    - name: ensure database for gitlab exists
+      mysql_db: state=present name={{gitlab_db_name}} collation=utf8_unicode_ci encoding=utf8
+    - name: ensure database user for gitlab is present and has privleges
+      mysql_user: state=present host=localhost name={{ gitlab_db_user }} password={{ gitlab_db_passwd }} priv={{ gitlab_db_name }}.*:ALL
+
+- name: GITLAB
+  hosts: webservers
+  sudo: yes
+  sudo_user: git
+  vars_files:
+    - files/vars.yml
+  tasks:
+    - name: ensure GitLab stable is cloned
+      git: repo=https://gitlab.com/gitlab-org/gitlab-ce.git dest=/home/git/gitlab
+              version=6-4-stable update=no
+
+    - name: ensure GitLab config file exists
+      template: src=templates/gitlab.yml.j2 dest=/home/git/gitlab/config/gitlab.yml mode=0644
+
+    - name: ensure GitLab can write to log
+      command: chmod -R u+rwX /home/git/gitlab/log
+    - name: ensure GitLab can write to tmp
+      command: chmod -R u+rwX /home/git/gitlab/tmp
+
+    - name: ensure directory for satellites exists
+      file: state=directory path=/home/git/gitlab-satellites
+
+    - name: ensure directory sockets exists
+      file: state=directory path=/home/git/gitlab/tmp/sockets/
+    - name: ensure GitLab can write to sockets
+      command: chmod -R u+rwX /home/git/gitlab/tmp/sockets/
+
+    - name: ensure directory pids exists
+      file: state=directory path=/home/git/gitlab/tmp/pids/
+    - name: ensure GitLab can write to pids
+      command: chmod -R u+rwX /home/git/gitlab/tmp/pids/
+
+    - name: ensure directory public/uploads exists
+      file: state=directory path=/home/git/gitlab/public/uploads/
+    - name: ensure GitLab can write to public/uploads/
+      command: chmod -R u+rwX /home/git/gitlab/public/uploads/
+
+    - name: ensure GitLab config file exists
+      template: src=templates/unicorn.rb.j2 dest=/home/git/gitlab/config/unicorn.rb mode=0644
+
+    - name: ensure Rack attack config is copied from example
+      command: cp /home/git/gitlab/config/initializers/rack_attack.rb.example /home/git/gitlab/config/initializers/rack_attack.rb
+                 creates=/home/git/gitlab/config/initializers/rack_attack.rb
+
+    - command: git config --global user.name "GitLab"
+    - command: git config --global user.emal "gitlab@localhost"
+    - command: git config --global core.autocrlf input
+
+    - name: ensure DB config file exists
+      template: src=templates/database.yml.j2 dest=/home/git/gitlab/config/database.yml mode=0600
+
+    - command: bundle install --deployment --without development test postgres aws chdir=/home/git/gitlab
+
+    - name: Initialize Database and Activate Advanced Features
+      shell: yes 'yes' | bundle exec rake gitlab:setup RAILS_ENV=production chdir=/home/git/gitlab
+
+    - name: Check Application Status
+      command: bundle exec rake gitlab:env:info RAILS_ENV=production chdir=/home/git/gitlab
+
+    - name: Compile assets
+      command: bundle exec rake assets:precompile RAILS_ENV=production chdir=/home/git/gitlab
+
 - name: SERVICES
   hosts: webservers
   sudo: yes
