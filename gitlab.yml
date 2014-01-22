@@ -32,7 +32,7 @@
       - libmysqlclient-dev  # for gitlab mysql module
       - logrotate
     - name: Ensure user git present
-      user: name=git system=yes shell=/bin/false comment='Gitlab'
+      user: name=git system=yes comment='Gitlab'
 
 - name: GITLAB SHELL
   hosts: webservers
@@ -119,8 +119,8 @@
     - name: Initialize Database and Activate Advanced Features
       shell: yes 'yes' | bundle exec rake gitlab:setup RAILS_ENV=production chdir=/home/git/gitlab
 
-    - name: Check Application Status
-      command: bundle exec rake gitlab:env:info RAILS_ENV=production chdir=/home/git/gitlab
+#    - name: Check Application Status
+#      command: bundle exec rake gitlab:env:info RAILS_ENV=production chdir=/home/git/gitlab
 
     - name: Compile assets
       command: bundle exec rake assets:precompile RAILS_ENV=production chdir=/home/git/gitlab
@@ -134,11 +134,11 @@
     - name: Install Init Script
       command: cp /home/git/gitlab/lib/support/init.d/gitlab /etc/init.d/gitlab
     - name: Make GitLab start on boot
-#      service: name=gitlab enabled=yes state=started
-      command: update-rc.d gitlab defaults 21
-    - name:  Start Your GitLab Instance
-      service: name=gitlab state=started
-      ignore_errors: yes
+      service: name=gitlab enabled=yes state=started
+#      command: update-rc.d gitlab defaults 21
+#    - name:  Start Your GitLab Instance
+#      service: name=gitlab state=started
+#      ignore_errors: yes
 #      command: /etc/init.d/gitlab restart
     - name:  Set up logrotate
       command: cp /home/git/gitlab/lib/support/logrotate/gitlab /etc/logrotate.d/gitlab
@@ -146,7 +146,7 @@
       command: cp /home/git/gitlab/lib/support/nginx/gitlab /etc/nginx/sites-available/gitlab
     - file: state=link src=/etc/nginx/sites-available/gitlab path=/etc/nginx/sites-enabled/gitlab
     - service: name=nginx state=restarted
-    - name:  Double-check Application Status
-      command: bundle exec rake gitlab:check RAILS_ENV=production chdir=/home/git/gitlab/
-      sudo_user: git
-
+#    - name:  Double-check Application Status
+#      command: bundle exec rake gitlab:check RAILS_ENV=production chdir=/home/git/gitlab/
+#      sudo_user: git
+#
