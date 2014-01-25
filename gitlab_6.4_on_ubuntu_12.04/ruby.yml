@@ -1,0 +1,34 @@
+---
+- name: RUBY
+  hosts: webservers
+  vars:
+    ruby_version: '2.0.0-p353'
+    sources_path: '/home/vagrant/sources'
+    product_path: '{{sources_path}}/ruby-{{ruby_version}}'
+    ruby_url: 'ftp://ftp.ruby-lang.org//pub/ruby/ruby-{{ruby_version}}.tar.gz'
+  tasks:
+    - name: Ensure dependencies are installed
+      sudo: yes
+      apt: name={{item}} state=present
+            update_cache=yes cache_valid_time=90000
+      with_items:
+        - build-essential
+        - libyaml-dev
+        - zlib1g-dev
+    - name: Ensure sources directory exists
+      file: state=directory path={{sources_path}}
+    - name: Ensure the source is downloaded
+      get_url: url={{ruby_url}} dest={{product_path}}.tar.gz
+    - name: Ensure the source is extracted
+      command: tar zxf {{product_path}}.tar.gz chdir={{sources_path}} creates={{product_path}}
+    - name: Ensure configured
+      command: ./configure chdir={{product_path}} creates=Makefile
+    - name: Ensure compiled
+      command: make chdir={{product_path}} creates=ruby
+    - name: Ensure installed
+      command: make install chdir={{product_path}} creates=/usr/local/bin/ruby
+      sudo: yes
+    - name: Ensure bundler is installed
+      gem: name=bundler state=present user_install=no
+      sudo: yes
+

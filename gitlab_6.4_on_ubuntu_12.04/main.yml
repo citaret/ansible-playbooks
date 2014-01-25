@@ -1,0 +1,7 @@
+---
+- include: nginx.yml
+- include: ruby.yml
+- include: mysql.yml
+- include: git.yml
+
+

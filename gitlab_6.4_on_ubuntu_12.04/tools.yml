@@ -1,0 +1,14 @@
+---
+- name: TOOLS
+  hosts: webservers
+  sudo: yes
+  tasks:
+    - name: Install basic tools
+      apt: name={{item}} state=present
+            update_cache=yes cache_valid_time=90000
+      with_items:
+        - curl
+        - htop
+        - lynx
+        - vim
+

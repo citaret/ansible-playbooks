@@ -1,0 +1,6 @@
+domain_name: 192.168.0.104
+gitlab_db_name: gitlabhq_production
+gitlab_db_user: git
+gitlab_db_passwd: what
+root_db_passwd: whatever
+
