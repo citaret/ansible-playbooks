@@ -1,0 +1,33 @@
+---
+
+- name: TOOLS
+  hosts: webservers
+  sudo: yes
+  tasks:
+    - name: Install EPEL
+      command: rpm -U http://mirrors.hustunique.com/epel/6/x86_64/epel-release-6-8.noarch.rpm
+                creates=/etc/yum.repos.d/epel.repo
+    - name: Install basic tools
+      yum: name={{item}} state=present
+      with_items:
+        - curl
+        - lynx
+        - vim
+        - ack
+        - sysstat
+        - htop
+        - nginx
+
+- name: ENVIRONMENTS
+  hosts: webservers
+  sudo: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Set hostname
+      command: /bin/sed -i "s/HOSTNAME=.*/HOSTNAME={{hostname}}/" /etc/sysconfig/network
+    - name: Stop iptables service
+      service: name=iptables enabled=no state=stopped
+    - name: Start nginx service
+      service: name=nginx enabled=yes state=started
+
