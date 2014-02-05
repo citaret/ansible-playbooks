@@ -1,0 +1,7 @@
+---
+sources_path: /home/polar/sources
+opress_user: opress
+opress_home: /home/{{opress_user}}
+opress_work: "{{opress_home}}/octopress"
+hostname: test001.com
+

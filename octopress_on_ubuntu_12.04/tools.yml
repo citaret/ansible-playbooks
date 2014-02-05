@@ -1,0 +1,20 @@
+---
+
+- name: DEPENDENCIES
+  hosts: webservers
+  sudo: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Install basic tools
+      apt: name={{item}} state=present
+      with_items:
+        - curl
+        - lynx
+        - vim
+        - tree
+        - ack-grep
+        - sysstat
+        - htop
+        - git
+

@@ -1,0 +1,2 @@
+[desktop]
+192.168.1.81 ansible_ssh_user=polar

@@ -1,0 +1,66 @@
+---
+
+- include: tools.yml
+- include: ruby.yml
+
+- name: OCTOPRESS
+  hosts: webservers
+  sudo: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Create user
+      user: name={{opress_user}} shell=/bin/bash
+    - name: Clone octopress
+      sudo_user: "{{opress_user}}"
+      git: repo=git://github.com/imathis/octopress.git dest={{opress_work}}
+            update=no
+#    - name: Change source for ruby
+#      command: sed -i 's!source.*!source "http://ruby.taobao.org"!' Gemfile chdir={{opress_work}}
+    - name: Change rake version
+      command: sed -i "s!'rake'.*!'rake', '~> 0.9.6'!" Gemfile chdir={{opress_work}}
+    - command: bundle install chdir={{opress_work}}
+    - command: rake install chdir={{opress_work}} creates=source
+      sudo_user: "{{opress_user}}"
+
+- name: NGINX
+  hosts: webservers
+  sudo: yes
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Install nginx
+      apt: name={{item}} state=present
+      with_items:
+        - nginx
+    - name: Change nginx root
+      command: sed -i 's!/usr/share/nginx/www!{{opress_work}}/public!' /etc/nginx/sites-available/default
+    - name: Start nginx service
+      service: name=nginx state=restarted enabled=yes
+
+- name: AUTO DEPLOY
+  hosts: webservers
+  sudo: yes
+  sudo_user: "{{opress_user}}"
+  vars_files:
+    - vars.yml
+  vars:
+    - blog_repo: '{{opress_home}}/octoblog.git'
+  tasks:
+    - file: path={{blog_repo}} state=absent
+    - name: Init git repo
+      command: git init --bare {{blog_repo}}
+    - file: path={{opress_work}}/.git state=absent
+    - name: Setup blog git
+      command: git {{item}} chdir={{opress_work}}
+      with_items:
+        - init
+        - add .
+        - config user.email 'a@b.c'
+        - config user.name 'abc'
+        - config remote.origin.url {{blog_repo}}
+        - commit -m 'init blog'
+        - push origin master
+    - name: post-receive
+      template: src=templates/post-receive.j2 dest={{blog_repo}}/hooks/post-receive mode=755
+

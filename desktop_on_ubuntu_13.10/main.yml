@@ -1,0 +1,28 @@
+---
+
+- name: PACKAGES
+  hosts: desktop
+  sudo: yes
+  tasks:
+    - name: Install packages
+      apt: name={{item}} state=present
+      with_items:
+        - vim
+        - xmms2
+        - xmms2-plugin-flac
+        - xmms2-plugin-cue
+        - xmms2-plugin-faad
+        - ttf-wqy-zenhei
+        - amule
+        - axel
+        - tree
+        - mc
+        - htop
+        - smplayer
+
+- name: SETTINGS
+  hosts: desktop
+  sudo: yes
+  tasks:
+    - file: src=/media dest=/media/polar state=link
+
